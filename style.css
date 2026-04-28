@@ -1,0 +1,499 @@
+/* ═══════════════════════════════════════════════════════════
+   PUISSANCE 4 — Feuille de style
+   Auteur  : [Ton prénom]
+   Fichier : style.css
+   ═══════════════════════════════════════════════════════════ */
+
+
+/* ── 1. VARIABLES GLOBALES (couleurs, polices) ──────────── */
+:root {
+  --bg:           #0a0a12;       /* fond de page */
+  --board:        #0f1a3a;       /* couleur du plateau */
+  --cell:         #06091a;       /* case vide */
+  --red:          #ff2d55;       /* jeton joueur 1 */
+  --yellow:       #ffd60a;       /* jeton joueur 2 / IA */
+  --red-glow:     rgba(255, 45, 85, 0.5);
+  --yellow-glow:  rgba(255, 214, 10, 0.5);
+  --text:         #e8eaf6;
+  --muted:        #7986cb;
+  --font-display: 'Bebas Neue', 'Arial Black', Impact, sans-serif;
+  --font-body:    'DM Sans', 'Segoe UI', system-ui, sans-serif;
+}
+
+
+/* ── 2. RESET & BASE ────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px 40px;
+  /* dégradés décoratifs en arrière-plan */
+  background-image:
+    radial-gradient(ellipse at 20% 0%,   rgba(30, 58, 138, 0.30) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(255, 45, 85, 0.10) 0%, transparent 60%);
+}
+
+
+/* ── 3. TYPOGRAPHIE ─────────────────────────────────────── */
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 8vw, 5rem); /* taille fluide selon l'écran */
+  letter-spacing: 0.08em;
+  line-height: 1;
+  /* dégradé rouge → jaune sur le texte */
+  background: linear-gradient(135deg, var(--red) 0%, var(--yellow) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+  user-select: none;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+
+/* ── 4. ANIMATIONS ──────────────────────────────────────── */
+
+/* Apparition en fondu + glissement vers le haut */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Chute du jeton dans la grille */
+@keyframes dropIn {
+  from { transform: scaleY(0.4) scaleX(1.15); opacity: 0.4; }
+  to   { transform: scaleY(1)   scaleX(1);    opacity: 1; }
+}
+
+/* Pulsation des jetons gagnants */
+@keyframes winPulse {
+  from { transform: scale(1);    filter: brightness(1); }
+  to   { transform: scale(1.13); filter: brightness(1.3); }
+}
+
+/* Points de chargement "Le robot réfléchit..." */
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0; }
+  40%           { opacity: 1; }
+}
+
+
+/* ── 5. MENU D'ACCUEIL ──────────────────────────────────── */
+#menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  margin-top: clamp(6vh, 10vh, 14vh);
+  animation: fadeUp 0.5s ease both;
+}
+
+.menu-head {
+  text-align: center;
+}
+
+.mode-cards {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Carte de sélection de mode */
+.mode-card {
+  background: var(--board);
+  border: 1px solid rgba(121, 134, 203, 0.18);
+  border-radius: 18px;
+  padding: 32px 38px;
+  cursor: pointer;
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+  text-align: center;
+  width: 210px;
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Halo coloré au survol (pseudo-élément) */
+.mode-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+
+.mode-card.pvp::before {
+  background: radial-gradient(circle at 50% 0%, rgba(255, 214, 10, 0.12), transparent 70%);
+}
+.mode-card.ai::before {
+  background: radial-gradient(circle at 50% 0%, rgba(255, 45, 85, 0.13), transparent 70%);
+}
+
+.mode-card:hover,
+.mode-card:focus-visible {
+  transform: translateY(-5px);
+  border-color: rgba(121, 134, 203, 0.5);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  outline: none;
+}
+
+.mode-card:hover::before {
+  opacity: 1;
+}
+
+.mode-icon  { font-size: 3rem; margin-bottom: 14px; }
+.mode-title { font-family: var(--font-display); font-size: 1.65rem; letter-spacing: 0.06em; margin-bottom: 8px; }
+.mode-desc  { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+
+/* ── 6. ÉCRAN DE JEU ────────────────────────────────────── */
+#game {
+  display: none; /* caché par défaut, activé via JS */
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 680px;
+  animation: fadeUp 0.4s ease both;
+}
+
+/* En-tête de partie */
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 2px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Bouton retour au menu */
+#back-btn {
+  background: transparent;
+  border: 1px solid rgba(121, 134, 203, 0.3);
+  color: var(--muted);
+  padding: 7px 16px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  transition: border-color 0.18s, color 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+#back-btn:hover { border-color: var(--muted); color: var(--text); }
+
+#mode-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+
+/* ── 7. SCORES ──────────────────────────────────────────── */
+.scores {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.score-box {
+  background: var(--board);
+  border-radius: 10px;
+  padding: 5px 14px;
+  text-align: center;
+  border: 1px solid transparent;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  min-width: 76px;
+}
+
+/* Mise en évidence du joueur actif */
+.score-box.active-red    { border-color: var(--red);    box-shadow: 0 0 16px rgba(255, 45, 85, 0.28); }
+.score-box.active-yellow { border-color: var(--yellow); box-shadow: 0 0 16px rgba(255, 214, 10, 0.28); }
+
+.score-label { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.score-value { font-family: var(--font-display); font-size: 1.55rem; }
+.score-value.red    { color: var(--red); }
+.score-value.yellow { color: var(--yellow); }
+.score-sep   { color: var(--muted); font-family: var(--font-display); font-size: 1.3rem; }
+
+
+/* ── 8. SÉLECTEUR DE DIFFICULTÉ ─────────────────────────── */
+#difficulty-row { width: 100%; }
+
+.diff-label {
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.difficulty-selector {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.diff-btn {
+  padding: 5px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(121, 134, 203, 0.28);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.diff-btn.active,
+.diff-btn:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: rgba(255, 45, 85, 0.08);
+}
+
+
+/* ── 9. BARRE DE STATUT ─────────────────────────────────── */
+#status {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.09em;
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  transition: color 0.25s;
+  user-select: none;
+}
+
+/* Point coloré devant le nom du joueur */
+.dot {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+/* Animation "..." quand l'IA calcule */
+.thinking-dots span {
+  animation: blink 1.2s infinite;
+  color: var(--yellow);
+}
+.thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+.thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+
+/* ── 10. PLATEAU DE JEU ─────────────────────────────────── */
+.board-wrap {
+  position: relative;
+  width: 100%;
+}
+
+/* Rangée de flèches au-dessus de la grille */
+#hover-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  padding: 0 10px;
+  margin-bottom: 5px;
+  height: 26px;
+}
+
+.hover-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Triangle CSS (flèche pointant vers le bas) */
+.hover-arrow {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 0;
+  opacity: 0;
+  transition: opacity 0.14s;
+}
+
+/* La grille principale (6 lignes × 7 colonnes) */
+#board-grid {
+  background: var(--board);
+  border-radius: 18px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(121, 134, 203, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Case individuelle (cercle) */
+.cell {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--cell);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+
+.cell:hover { transform: scale(1.05); }
+
+/* Jeton rouge (Joueur 1) */
+.cell.red {
+  background: var(--red);
+  box-shadow:
+    0 0 18px var(--red-glow),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.28),
+    inset 0  4px 8px rgba(255, 255, 255, 0.14);
+  animation: dropIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Jeton jaune (Joueur 2 / IA) */
+.cell.yellow {
+  background: var(--yellow);
+  box-shadow:
+    0 0 18px var(--yellow-glow),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.18),
+    inset 0  4px 8px rgba(255, 255, 255, 0.26);
+  animation: dropIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Pulsation des 4 jetons gagnants */
+.cell.win-flash { animation: winPulse 0.65s ease infinite alternate; }
+.cell.red.win-flash    { box-shadow: 0 0 32px var(--red),    0 0 70px var(--red-glow); }
+.cell.yellow.win-flash { box-shadow: 0 0 32px var(--yellow), 0 0 70px var(--yellow-glow); }
+
+
+/* ── 11. OVERLAY DE FIN DE PARTIE ───────────────────────── */
+#overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+
+#overlay.show {
+  display: flex;
+  animation: fadeUp 0.28s ease both;
+}
+
+.overlay-card {
+  background: var(--board);
+  border: 1px solid rgba(121, 134, 203, 0.22);
+  border-radius: 22px;
+  padding: 44px 56px;
+  text-align: center;
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.75);
+  max-width: 90vw;
+}
+
+.overlay-icon  { font-size: 3.2rem; margin-bottom: 18px; }
+.overlay-title { font-family: var(--font-display); font-size: 2.5rem; letter-spacing: 0.08em; margin-bottom: 8px; }
+.overlay-sub   { color: var(--muted); font-size: 0.88rem; margin-bottom: 30px; line-height: 1.5; }
+
+
+/* ── 12. BOUTONS ────────────────────────────────────────── */
+.btn-group {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 11px 26px;
+  border-radius: 11px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  transition: transform 0.18s, box-shadow 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ff2d55, #c0182f);
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(255, 45, 85, 0.32);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 45, 85, 0.45);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid rgba(121, 134, 203, 0.3);
+}
+.btn-secondary:hover {
+  border-color: var(--muted);
+  color: var(--text);
+}
+
+
+/* ── 13. PIED DE PAGE ───────────────────────────────────── */
+footer {
+  margin-top: auto;
+  padding-top: 40px;
+  font-size: 0.72rem;
+  color: rgba(121, 134, 203, 0.4);
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+
+/* ── 14. RESPONSIVE (mobile) ────────────────────────────── */
+@media (max-width: 480px) {
+  .overlay-card  { padding: 32px 24px; }
+  .overlay-title { font-size: 1.9rem; }
+  .mode-card     { width: 100%; max-width: 260px; padding: 24px 28px; }
+  #board-grid    { gap: 4px; padding: 8px; }
+  .score-box     { min-width: 60px; padding: 4px 10px; }
+}
