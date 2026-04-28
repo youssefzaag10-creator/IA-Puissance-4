@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════
    PUISSANCE 4 — Logique de jeu & Intelligence Artificielle
-   Auteur  : [Youssef ZAAG]
+   Auteur  : [Youssef ZAAG, Mehdi KRIFA, Mohamed Rayen Hammas]
    Fichier : game.js
    ═══════════════════════════════════════════════════════════ */
 
