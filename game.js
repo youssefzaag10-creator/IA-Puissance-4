@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════
    PUISSANCE 4 — Logique de jeu & Intelligence Artificielle
-   Auteur  : [Ton prénom]
+   Auteur  : [Youssef ZAAG]
    Fichier : game.js
    ═══════════════════════════════════════════════════════════ */
 
